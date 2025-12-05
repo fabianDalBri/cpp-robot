@@ -1,0 +1,94 @@
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <chrono>
+
+// 0=up, 1=right, 2=down, 3=left
+struct Robot {
+    int x;
+    int y;
+    int dir; 
+};
+
+// Simple maze: # = wall, . = empty
+using Maze = std::vector<std::string>;
+
+void draw_maze(const Maze& maze, const Robot& r) {
+    
+    std::cout << "\x1B[2J\x1B[H"; // Clear screen (not perfect)
+
+    for (int y = 0; y < (int)maze.size(); ++y) {
+        for (int x = 0; x < (int)maze[y].size(); ++x) {
+            if (x == r.x && y == r.y) {
+                std::cout << 'R';
+            } else {
+                std::cout << maze[y][x];
+            }
+        }
+        std::cout << '\n';
+    }
+}
+
+bool is_wall(const Maze& maze, int x, int y) {
+    if (y < 0 || y >= (int)maze.size()) return true;
+    if (x < 0 || x >= (int)maze[y].size()) return true;
+    return maze[y][x] == '#';
+}
+
+bool wall_in_front(const Robot& r, const Maze& maze) {
+    int nx = r.x;
+    int ny = r.y;
+
+    if (r.dir == 0) ny -= 1;      // up
+    else if (r.dir == 1) nx += 1; // right
+    else if (r.dir == 2) ny += 1; // down
+    else if (r.dir == 3) nx -= 1; // left
+
+    return is_wall(maze, nx, ny);
+}
+
+void move_forward(Robot& r, const Maze& maze) {
+    if (wall_in_front(r, maze)) return;
+
+    if (r.dir == 0) r.y -= 1;
+    else if (r.dir == 1) r.x += 1;
+    else if (r.dir == 2) r.y += 1;
+    else if (r.dir == 3) r.x -= 1;
+}
+
+void turn_left(Robot& r) {
+    r.dir = (r.dir + 1) % 4;
+}
+
+
+int main() {
+    Maze maze = {
+        "####################",
+        "#....#.#..........#",
+        "#..#.#.##...#.....#",
+        "#..#.#.#..........#",
+        "#..#.#.#.#....###.#",
+        "#..#..............#",
+        "####################"
+    };
+
+    Robot robot{2, 2, 1}; // start at (2,2), facing right
+
+    while (true) {
+        bool blocked = wall_in_front(robot, maze);
+
+        // dumb control algorithm, If blocked, turn left, else move forward
+        if (blocked) {
+            turn_left(robot);
+        } else {
+            move_forward(robot, maze);
+        }
+
+
+        draw_maze(maze, robot);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+
+    return 0;
+}
