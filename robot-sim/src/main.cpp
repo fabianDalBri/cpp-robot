@@ -60,29 +60,52 @@ void turn_left(Robot& r) {
     r.dir = (r.dir + 1) % 4;
 }
 
+bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visited, const Maze& maze)
+{
+    int nx = r.x;
+    int ny = r.y;
+
+    if (r.dir == 0) ny -= 1;
+    else if (r.dir == 1) nx += 1;
+    else if (r.dir == 2) ny += 1;
+    else if (r.dir == 3) nx -= 1;
+
+    // Treat out-of-bounds as visited (same idea as walls)
+    if (ny < 0 || ny >= (int)visited.size()) return true;
+    if (nx < 0 || nx >= (int)visited[0].size()) return true;
+
+    return visited[ny][nx];
+}
+
 
 int main() {
     Maze maze = {
         "####################",
-        "#....#.#..........#",
-        "#..#.#.##...#.....#",
-        "#..#.#.#..........#",
-        "#..#.#.#.#....###.#",
-        "#..#..............#",
+        "#....#...#...#....#",
+        "#..#.#.#.#.#.#.#..#",
+        "#..#.#.#.#.#.#.#..#",
+        "#..#.#.#.#.#.#.#..#",
+        "#..#...#...#...#..#",
         "####################"
     };
+
+    // Track visited cells
+    std::vector<std::vector<bool>> visited(maze.size(), std::vector<bool>(maze[0].size(), false));
 
     Robot robot{2, 2, 1}; // start at (2,2), facing right
 
     while (true) {
-        bool blocked = wall_in_front(robot, maze);
+        visited[robot.y][robot.x] = true;
 
-        // dumb control algorithm, If blocked, turn left, else move forward
-        if (blocked) {
+        bool blocked = wall_in_front(robot, maze);
+        bool was_visited = visited_in_front(robot, visited, maze);
+
+        if (blocked || was_visited) {
             turn_left(robot);
         } else {
             move_forward(robot, maze);
         }
+
 
 
         draw_maze(maze, robot);
