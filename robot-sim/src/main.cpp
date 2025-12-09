@@ -77,12 +77,15 @@ bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visi
     return visited[ny][nx];
 }
 
+bool at_goal(const Robot& r, const Maze& maze) {
+    return maze[r.y][r.x] == 'X'; //end program on "X"
+}
 
 int main() {
     Maze maze = {
         "####################",
         "#....#...#...#....#",
-        "#..#.#.#.#.#.#.#..#",
+        "#..#.#.#.#.#.#.#X.#",
         "#..#.#.#.#.#.#.#..#",
         "#..#.#.#.#.#.#.#..#",
         "#..#...#...#...#..#",
@@ -106,7 +109,11 @@ int main() {
             move_forward(robot, maze);
         }
 
-
+        if (at_goal(robot, maze)) {
+        draw_maze(maze, robot);
+        std::cout << "\nGoal reached, exiting...\n";
+        break;
+        }
 
         draw_maze(maze, robot);
 
