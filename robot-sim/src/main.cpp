@@ -47,6 +47,22 @@ bool wall_in_front(const Robot& r, const Maze& maze) {
     return is_wall(maze, nx, ny);
 }
 
+Robot find_robot_start(const Maze& maze) {
+    for (int y = 0; y < (int)maze.size(); ++y) {
+        for (int x = 0; x < (int)maze[y].size(); ++x) {
+            if (maze[y][x] == 'O') {
+                
+                return Robot{x, y, 1}; //facing direction: right (1)
+            }
+        }
+    }
+
+    // If no O found, crash on purpose:
+    std::cerr << "Error: No 'O' start position found in world.\n";
+    exit(1);
+}
+
+
 void move_forward(Robot& r, const Maze& maze) {
     if (wall_in_front(r, maze)) return;
 
@@ -85,7 +101,7 @@ int main() {
     Maze maze = {
         "####################",
         "#....#...#...#....#",
-        "#..#.#.#.#.#.#.#X.#",
+        "#.O#.#.#.#.#.#.#X.#",
         "#..#.#.#.#.#.#.#..#",
         "#..#.#.#.#.#.#.#..#",
         "#..#...#...#...#..#",
@@ -95,7 +111,7 @@ int main() {
     // Track visited cells
     std::vector<std::vector<bool>> visited(maze.size(), std::vector<bool>(maze[0].size(), false));
 
-    Robot robot{2, 2, 1}; // start at (2,2), facing right
+    Robot robot = find_robot_start(maze);
 
     while (true) {
         visited[robot.y][robot.x] = true;
