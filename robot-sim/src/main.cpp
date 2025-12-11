@@ -113,8 +113,12 @@ int main() {
 
     Robot robot = find_robot_start(maze);
 
+    int steps = 0;  // how many iterations we did
+
+    auto start_time = std::chrono::steady_clock::now();
+
     while (true) {
-        visited[robot.y][robot.x] = true;
+        
 
         bool blocked = wall_in_front(robot, maze);
         bool was_visited = visited_in_front(robot, visited, maze);
@@ -125,11 +129,22 @@ int main() {
             move_forward(robot, maze);
         }
 
+        visited[robot.y][robot.x] = true;
+        steps++;
+
         if (at_goal(robot, maze)) {
-        draw_maze(maze, robot);
-        std::cout << "\nGoal reached, exiting...\n";
-        break;
+            auto end_time = std::chrono::steady_clock::now();
+            auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+                end_time - start_time
+            ).count();
+
+            draw_maze(maze, robot);
+            std::cout << "\nGoal reached!\n";
+            std::cout << "Steps: " << steps << "\n";
+            std::cout << "Elapsed time: " << elapsed_ms << " ms (~"<< elapsed_ms / 1000.0 << " s)\n";
+            break;
         }
+
 
         draw_maze(maze, robot);
 
