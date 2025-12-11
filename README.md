@@ -55,4 +55,4 @@ Ensures stable and reliable behavior across changes.
 Compile:
 
 g++ -std=c++20 -O2 src/main.cpp -o robot
-./robot
+ ./test_robot
