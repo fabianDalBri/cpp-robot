@@ -24,7 +24,7 @@ Simulation ends immediately when the robot reaches the tile **X**.
 ### Estimated Time Tracking  
 Tracks:
 - Number of steps taken  
-- Real execution time (ms)  
+- Execution time (ms)  
 
 ### Visit Tracking  
 Keeps in mind of visited tiles to avoid loops and backtracking.
