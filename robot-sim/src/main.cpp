@@ -113,7 +113,7 @@ int main() {
 
     Robot robot = find_robot_start(maze);
 
-    int steps = 0;  // how many iterations we did
+    int steps = 0;
 
     auto start_time = std::chrono::steady_clock::now();
 
