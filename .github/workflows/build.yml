@@ -20,4 +20,5 @@ jobs:
       - name: Build robot sim
         run: |
           mkdir -p robot-sim/build
-          g++ -std=c++20 -O2 robot-sim/src/main.cpp -o robot-sim/build/robot
+          g++ -std=c++20 -O2 robot-sim/tests/main.cpp robot-sim/src/robot.cpp -o robot-sim/build/robot
+
