@@ -1,7 +1,7 @@
 # C++ Robot Simulator
 
 A simple grid-based robot simulator written in C++.  
-The robot navigates a maze, avoids walls, tracks visited tiles, and locates a goal marked with **X**.
+The robot navigates a maze using deterministic navigation rules and locates a goal marked with **X**.
 
 `O` marks the robot's starting position, `#` represents walls, and `.` represents free path tiles.
 
@@ -10,16 +10,18 @@ The robot navigates a maze, avoids walls, tracks visited tiles, and locates a go
 ## Features
 
 ### Automatic Start Detection  
-Robot automatically spawns at the tile marked **O** and begins facing right.
+The robot automatically spawns at the tile marked **O** and begins facing right.
 
 ### Basic Navigation  
-Robot moves through the maze using simple rules:
-- Moves forward when possible  
+The robot navigates the maze using the **right-hand wall-following rule**:
+- Prefers turning right when possible  
+- Moves forward when the path ahead is clear  
 - Turns left when blocked  
-- Avoids revisiting previously visited tiles  
+
+This allows the robot to solve mazes with dead ends and loops without getting stuck.
 
 ### Goal Detection  
-Simulation ends immediately when the robot reaches the tile **X**.
+The simulation ends immediately when the robot reaches the tile **X**.
 
 ### Estimated Time Tracking  
 Tracks:
@@ -27,86 +29,29 @@ Tracks:
 - Execution time (ms)  
 
 ### Visit Tracking  
-Keeps in mind of visited tiles to avoid loops and backtracking.
-
----
-
-## GitHub CI Integration
-
-A build-and-test pipeline that:
-- Compiles the simulator on push / pull requests  
-- Compiles and runs test cases  
-- Fails PRs if tests fail  
-
-Ensures stable and reliable behavior across changes.
-
----
-
-## Technologies Used
-
-- **C++20**
-- **std::vector**, **std::chrono**, **std::thread**
-- **GitHub Actions** for CI  
-
----
-
-## Run Instructions
-
-Compile:
-
-# C++ Robot Simulator
-
-A simple grid-based robot simulator written in C++.  
-The robot navigates a maze, avoids walls, tracks visited tiles, and locates a goal marked with **X**.
-
-`O` marks the robot's starting position, `#` represents walls, and `.` represents free path tiles.
-
----
-
-## Features
-
-### Automatic Start Detection  
-Robot automatically spawns at the tile marked **O** and begins facing right.
-
-### Basic Navigation  
-Robot moves through the maze using simple rules:
-- Moves forward when possible  
-- Turns left when blocked  
-- Avoids revisiting previously visited tiles  
-
-### Goal Detection  
-Simulation ends immediately when the robot reaches the tile **X**.
-
-### Estimated Time Tracking  
-Tracks:
-- Number of steps taken  
-- Real execution time (ms)  
-- Estimated time based on loop delay  
-
-### Visit Tracking  
-Keeps a map of visited tiles to avoid loops and backtracking.
+The robot avoids trivial oscillation and infinite loops through deterministic movement rules rather than banning revisits outright.
 
 ---
 
 ## Testing Support
 
-Includes a lightweight test harness to verify robot navigation logic:
-- Loads a predefined maze  
-- Runs navigation for a fixed number of steps  
-- Fails if goal is not reached  
+Includes a reusable test runner that verifies robot navigation logic:
+- Runs multiple predefined mazes in a single executable  
+- Executes navigation for a fixed maximum number of steps  
+- Fails if the robot does not reach the goal  
 
-Runs automatically in GitHub Actions.
+Tests run automatically in GitHub Actions and locally via the terminal.
 
 ---
 
 ## GitHub CI Integration
 
 A build-and-test pipeline that:
-- Compiles the simulator on push / pull requests  
-- Compiles and runs test cases  
-- Fails PRs if tests fail  
+- Compiles the robot logic and test runner on push / pull requests  
+- Executes all maze test cases  
+- Fails PRs if any test case fails  
 
-Ensures stable and reliable behavior across changes.
+This ensures stable and reliable behavior across changes.
 
 ---
 
@@ -115,15 +60,14 @@ Ensures stable and reliable behavior across changes.
 - **C++20**
 - **std::vector**, **std::chrono**, **std::thread**
 - **GitHub Actions** for CI  
-- Optional tests using a standalone C++ test runner
+- Standalone C++ test runner (no external test framework)
 
 ---
 
 ## Run Instructions
 
-Compile:
+### Run automated tests (recommended)
 
 ```bash
-g++ -std=c++20 -O2 src/main.cpp -o robot
-./robot
-
+g++ -std=c++20 -O2 robot-sim/tests/test_runner.cpp robot-sim/src/robot.cpp -o robot-sim/build/test_runner
+./robot-sim/build/test_runner
