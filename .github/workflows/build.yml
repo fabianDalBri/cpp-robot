@@ -1,4 +1,4 @@
-name: C++ Robot Build
+name: C++ Robot CI
 
 on:
   push:
@@ -7,18 +7,21 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies
-        run: sudo apt-get update
-
-      - name: Build robot sim
+      - name: Build tests
         run: |
           mkdir -p robot-sim/build
-          g++ -std=c++20 -O2 robot-sim/tests/main.cpp robot-sim/src/robot.cpp -o robot-sim/build/robot
+          g++ -std=c++20 -O2 \
+            robot-sim/tests/test_runner.cpp \
+            robot-sim/src/robot.cpp \
+            -o robot-sim/build/test_runner
 
+      - name: Run tests
+        run: |
+          robot-sim/build/test_runner

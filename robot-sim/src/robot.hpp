@@ -19,6 +19,4 @@ bool wall_in_front(const Robot& r, const Maze& maze);
 void move_forward(Robot& r, const Maze& maze);
 void turn_left(Robot& r);
 
-bool visited_in_front(const Robot& r,
-                      const std::vector<std::vector<bool>>& visited,
-                      const Maze& maze);
+bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visited, const Maze& maze);
