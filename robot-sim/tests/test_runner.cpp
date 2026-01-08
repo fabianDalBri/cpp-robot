@@ -35,34 +35,41 @@ static bool run_until_goal(Maze maze, int max_steps, int& out_steps) {
     // so the robot can move over it like any other '.'
     maze[robot.y][robot.x] = '.';
 
-    // Main simulation loop (step-based, deterministic)
+    int prev_x = robot.x;
+    int prev_y = robot.y;
+
     for (int steps = 0; steps < max_steps; ++steps) {
 
-        // Sense environment
-        bool blocked     = wall_in_front(robot, maze);
-        bool was_visited = visited_in_front(robot, visited, maze);
+        // Compute where we'd go if we moved forward
+        auto [nx, ny] = next_cell_in_front(robot);
 
-        // Decide action
-        if (blocked || was_visited) {
+        bool blocked = is_wall(maze, nx, ny);
+
+        // A) avoid immediate backtracking:
+        // if moving forward would go to the tile we were just on, treat it like blocked
+        bool immediate_backtrack = (nx == prev_x && ny == prev_y);
+
+        if (blocked || immediate_backtrack) {
             turn_left(robot);
         } else {
+            // store current position as "previous" BEFORE moving
+            prev_x = robot.x;
+            prev_y = robot.y;
+
             move_forward(robot, maze);
         }
 
-        // Mark current tile as visited
-        visited[robot.y][robot.x] = true;
-
-        // Check goal condition
         if (at_goal(robot, maze)) {
-            out_steps = steps + 1; // +1 because steps starts at 0
+            out_steps = steps + 1;
             return true;
         }
     }
 
-    // Failed to reach goal within step limit
-    out_steps = max_steps;
-    return false;
-}
+
+        // Failed to reach goal within step limit
+        out_steps = max_steps;
+        return false;
+    }
 
 
 // Program entry point for ALL tests.

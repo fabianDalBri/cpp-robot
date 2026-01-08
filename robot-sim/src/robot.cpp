@@ -1,9 +1,7 @@
 #include "robot.hpp"
 #include <iostream>
 #include <cstdlib>
-
-// Simple maze: # = wall, . = empty
-using Maze = std::vector<std::string>;
+#include <utility>
 
 void draw_maze(const Maze& maze, const Robot& r) {
     
@@ -39,6 +37,18 @@ bool wall_in_front(const Robot& r, const Maze& maze) {
     return is_wall(maze, nx, ny);
 }
 
+std::pair<int,int> next_cell_in_front(const Robot& r) {
+    int nx = r.x;
+    int ny = r.y;
+
+    if (r.dir == 0) ny -= 1;
+    else if (r.dir == 1) nx += 1;
+    else if (r.dir == 2) ny += 1;
+    else if (r.dir == 3) nx -= 1;
+
+    return {nx, ny};
+}
+
 Robot find_robot_start(const Maze& maze) {
     for (int y = 0; y < (int)maze.size(); ++y) {
         for (int x = 0; x < (int)maze[y].size(); ++x) {
@@ -65,7 +75,7 @@ void move_forward(Robot& r, const Maze& maze) {
 }
 
 void turn_left(Robot& r) {
-    r.dir = (r.dir + 1) % 4;
+    r.dir = (r.dir + 3) % 4;
 }
 
 bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visited, const Maze& maze)
