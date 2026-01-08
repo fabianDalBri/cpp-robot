@@ -37,6 +37,14 @@ bool wall_in_front(const Robot& r, const Maze& maze) {
     return is_wall(maze, nx, ny);
 }
 
+bool wall_on_right(const Robot& r, const Maze& maze) {
+    Robot tmp = r;
+    tmp.dir = (tmp.dir + 1) % 4; // face right relative to current direction
+
+    auto [nx, ny] = next_cell_in_front(tmp);
+    return is_wall(maze, nx, ny);
+}
+
 std::pair<int,int> next_cell_in_front(const Robot& r) {
     int nx = r.x;
     int ny = r.y;
@@ -78,6 +86,11 @@ void turn_left(Robot& r) {
     r.dir = (r.dir + 3) % 4;
 }
 
+void turn_right(Robot& r) {
+    r.dir = (r.dir + 1) % 4; // clockwise
+}
+
+/*
 bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visited, const Maze& maze)
 {
     int nx = r.x;
@@ -94,6 +107,7 @@ bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visi
 
     return visited[ny][nx];
 }
+*/
 
 bool at_goal(const Robot& r, const Maze& maze) {
     return maze[r.y][r.x] == 'X'; //end program on "X"

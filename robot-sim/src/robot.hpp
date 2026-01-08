@@ -17,8 +17,12 @@ void draw_maze(const Maze& maze, const Robot& r);
 
 bool is_wall(const Maze& maze, int x, int y);
 bool wall_in_front(const Robot& r, const Maze& maze);
+bool wall_on_right(const Robot& r, const Maze& maze);
+
 void move_forward(Robot& r, const Maze& maze);
 void turn_left(Robot& r);
 std::pair<int,int> next_cell_in_front(const Robot& r);
+void turn_right(Robot& r);
 
-bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visited, const Maze& maze);
+
+//bool visited_in_front(const Robot& r, const std::vector<std::vector<bool>>& visited, const Maze& maze);

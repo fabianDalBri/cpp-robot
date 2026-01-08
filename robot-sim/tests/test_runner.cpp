@@ -1,62 +1,31 @@
-// Include the robot logic (NO main() here, just functions + structs)
+// robot-sim/tests/test_runner.cpp
 #include "../src/robot.hpp"
-
 #include <iostream>
 #include <vector>
 
-
-// A single test case definition.
-// Each test case has:
 struct TestCase {
-    const char* name;   // test name printed in output
-    Maze maze;          // maze data (O=start, X=goal)
-    int max_steps;      // safety limit to avoid infinite loops
+    const char* name;
+    Maze maze;
+    int max_steps;
 };
 
-
-// Runs the robot simulation until either:
-//  - the robot reaches the goal (X) -> returns true
-//  - max_steps is exceeded           -> returns false
-//
-// maze is passed by VALUE on purpose:
-// each test gets its own copy so tests don't affect each other.
 static bool run_until_goal(Maze maze, int max_steps, int& out_steps) {
-
-    // Track which tiles were already visited
-    std::vector<std::vector<bool>> visited(
-        maze.size(),
-        std::vector<bool>(maze[0].size(), false)
-    );
-
-    // Find the robot start position (marked with 'O')
     Robot robot = find_robot_start(maze);
-
-    // Replace the start tile with normal path
-    // so the robot can move over it like any other '.'
-    maze[robot.y][robot.x] = '.';
-
-    int prev_x = robot.x;
-    int prev_y = robot.y;
+    maze[robot.y][robot.x] = '.'; // replace 'O' with path
 
     for (int steps = 0; steps < max_steps; ++steps) {
 
-        // Compute where we'd go if we moved forward
-        auto [nx, ny] = next_cell_in_front(robot);
-
-        bool blocked = is_wall(maze, nx, ny);
-
-        // A) avoid immediate backtracking:
-        // if moving forward would go to the tile we were just on, treat it like blocked
-        bool immediate_backtrack = (nx == prev_x && ny == prev_y);
-
-        if (blocked || immediate_backtrack) {
-            turn_left(robot);
-        } else {
-            // store current position as "previous" BEFORE moving
-            prev_x = robot.x;
-            prev_y = robot.y;
-
+        // Right-hand rule:
+        // 1) If right is open -> turn right + move
+        // 2) Else if front is open -> move
+        // 3) Else -> turn left
+        if (!wall_on_right(robot, maze)) {
+            turn_right(robot);
             move_forward(robot, maze);
+        } else if (!wall_in_front(robot, maze)) {
+            move_forward(robot, maze);
+        } else {
+            turn_left(robot);
         }
 
         if (at_goal(robot, maze)) {
@@ -65,20 +34,12 @@ static bool run_until_goal(Maze maze, int max_steps, int& out_steps) {
         }
     }
 
+    out_steps = max_steps;
+    return false;
+}
 
-        // Failed to reach goal within step limit
-        out_steps = max_steps;
-        return false;
-    }
-
-
-// Program entry point for ALL tests.
-// One executable, many mazes.
 int main() {
-
-    // List of all test cases
     std::vector<TestCase> cases = {
-
         {
             "simple_line",
             {
@@ -88,7 +49,6 @@ int main() {
             },
             200
         },
-
         {
             "dead_end",
             {
@@ -102,7 +62,6 @@ int main() {
             },
             2000
         },
-
         {
             "loopy",
             {
@@ -121,27 +80,18 @@ int main() {
 
     int failed = 0;
 
-    // Run all test cases
     for (const auto& tc : cases) {
         int steps_taken = 0;
+        bool ok = run_until_goal(tc.maze, tc.max_steps, steps_taken);
 
-        bool success = run_until_goal(
-            tc.maze,
-            tc.max_steps,
-            steps_taken
-        );
-
-        if (success) {
-            std::cout << "PASS: " << tc.name
-                      << " (steps=" << steps_taken << ")\n";
+        if (ok) {
+            std::cout << "PASS: " << tc.name << " (steps=" << steps_taken << ")\n";
         } else {
-            std::cout << "FAIL: " << tc.name
-                      << " (hit max_steps=" << tc.max_steps << ")\n";
+            std::cout << "FAIL: " << tc.name << " (hit max_steps=" << tc.max_steps << ")\n";
             failed++;
         }
     }
 
-    // If any test failed, return non-zero exit code
     if (failed > 0) {
         std::cerr << failed << " test(s) failed.\n";
         return 1;
